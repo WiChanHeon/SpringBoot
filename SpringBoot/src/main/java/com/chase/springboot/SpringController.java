@@ -1,5 +1,12 @@
 package com.chase.springboot;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +27,43 @@ public class SpringController {
 	@Autowired
 	MyDataRepository repository;
 	
+	@PersistenceContext
+	EntityManager entityManager;
+	
+	MyDataDaoImpl dao;
+	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public ModelAndView index(
-			@ModelAttribute("formModel") MyData mydata,
-			ModelAndView mav){
+	public ModelAndView index(ModelAndView mav){
 		mav.setViewName("index");
-		mav.addObject("msg", "this is sample content.");
-		Iterable<MyData> list = repository.findAll();
+		mav.addObject("msg", "MyDATA의 예제입니당.");
+		Iterable<MyData> list = dao.getAll();
 		mav.addObject("datalist", list);
 		return mav;
+	}
+	
+	@PostConstruct
+	public void init(){
+		dao = new MyDataDaoImpl(entityManager);
+		MyData d1 = new MyData();
+		d1.setName("chase1");
+		d1.setAge(123);
+		d1.setMail("c52871@naver.com");
+		d1.setMemo("1234567891");
+		repository.save(d1);
+		
+		MyData d2 = new MyData();
+		d2.setName("chase2");
+		d2.setAge(15);
+		d2.setMail("c52872@naver.com");
+		d2.setMemo("1234567892");
+		repository.save(d2);
+		
+		MyData d3 = new MyData();
+		d3.setName("chase3");
+		d3.setAge(37);
+		d3.setMail("c52873@naver.com");
+		d3.setMemo("1234567893");
+		repository.save(d3);
 	}
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
@@ -91,5 +126,36 @@ public class SpringController {
 			ModelAndView mav){
 		repository.delete(id);
 		return new ModelAndView("redirect:/");
+	}
+	
+	@RequestMapping(value = "/find", method = RequestMethod.GET)
+	public ModelAndView find(ModelAndView mav){
+		mav.setViewName("find");
+		mav.addObject("title", "Find Page");
+		mav.addObject("msg", "MyData의 예제입니다.");
+		mav.addObject("value", "");
+		Iterable<MyData> list = dao.getAll();
+		mav.addObject("datalist", list);
+		return mav;
+	}
+	
+	@RequestMapping(value = "/find", method = RequestMethod.POST)
+	public ModelAndView search(HttpServletRequest request,
+			ModelAndView mav){
+		mav.setViewName("find");
+		
+		String param = request.getParameter("fstr");
+		
+		if(param == ""){
+			mav = new ModelAndView("redirect:/find");
+		}else{
+			mav.addObject("title", "Find Result");
+			mav.addObject("msg", param + "의 검색 결과");
+			mav.addObject("value", param);
+			List<MyData> list = dao.find(param);
+			mav.addObject("datalist", list);
+		}
+		
+		return mav;
 	}
 }

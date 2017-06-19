@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Top page</title>
+	<title>find page</title>
 	<meta http-equiv="Content-Type" content="text/html;" charset="UTF-8" />
 	<style>
 	h1{font-size:18px;font-weight:bold;color:gray;}
@@ -9,14 +9,22 @@
 	tr{margin:5px;}
 	th{padding:5px;color:white;background: darkgray;}
 	td{padding:5px;color:black;background: #e0e0ff;}
-	.err{color:red;}
 	</style>
 </head>
 <body>
-	<h1 th:text="#{content.title}">Hello Page</h1>
+	<h1 th:text="${title}">find Page</h1>
 	<p th:text="${msg}"></p>
 	<table>
-	<tr><th>ID</th><th>이름</th><th>메일주소</th><th>나이</th><th>메모</th></tr>
+	<form action="/find" method="post">
+		<tr>
+			<td>FIND:</td>
+			<td><input type="text" name="fstr" size="20" th:value="${value}"/></td>
+		</tr>
+	</form>
+	</table>
+	<hr />
+	<table>
+	<tr><th>ID</th><th>이름</th><th>메일</th><th>나이</th><th>메모</th></tr>
 	<tr th:each="obj : ${datalist}">
 		<td th:text="${obj.id}"></td>
 		<td th:text="${obj.name}"></td>
